@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Audio Player Studio</title>
+        <style>
+            :root {
+                --bg-base: #0a0c14;
+                --bg-surface: #141724;
+                --bg-card: #1f2336;
+                --border-color: #2e344d;
+                --color-vocal: #ff9100;
+                --color-music: #00e676;
+                --color-primary: #00e5ff;
+                --text-main: #f0f2f5;
+                --text-muted: #a6b1e1;
+            }
+
+            body {
+                font-family: 'Segoe UI', sans-serif;
+                background-color: var(--bg-base);
+                color: var(--text-main);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            .mixer-container {
+                background-color: var(--bg-surface);
+                padding: 35px;
+                border-radius: 20px;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+                max-width: 900px;
+                width: 100%;
+                border: 1px solid var(--border-color);
+            }
+
+            h1 {
+                text-align: center;
+                color: var(--color-primary);
+                margin-top: 0;
+                margin-bottom: 30px;
+                font-size: 2.2rem;
+                font-weight: 700;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            .tracks {
+                display: flex;
+                gap: 24px;
+                margin-bottom: 10px;
+            }
+
+            .track {
+                flex: 1;
+                background-color: var(--bg-card);
+                padding: 25px;
+                border-radius: 16px;
+                border: 1px solid var(--border-color);
+                display: flex;
+                flex-direction: column;
+            }
+
+            h2 {
+                margin-top: 0;
+                color: var(--color-primary);
+                font-size: 1.4rem;
+                border-bottom: 2px solid var(--border-color);
+                padding-bottom: 12px;
+                text-align: center;
+                width: 100%;
+                font-weight: 600;
+            }
+
+            .file-upload-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin: 20px 0;
+                text-align: center;
+                padding: 15px;
+                border: 2px dashed var(--border-color);
+                border-radius: 10px;
+                background: rgba(10, 12, 20, 0.3);
+            }
+
+            .file-upload-wrapper label {
+                color: var(--text-main);
+                font-size: 0.9rem;
+                margin-bottom: 10px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-weight: bold;
+            }
+
+            input[type="file"] {
+                font-size: 0.85rem;
+                color: var(--text-muted);
+                width: 100%;
+                max-width: 220px;
+                cursor: pointer;
+            }
+
+            .audio-controls {
+                display: flex;
+                gap: 12px;
+                margin-top: 5px;
+                margin-bottom: 25px;
+            }
+
+            button {
+                flex: 1;
+                padding: 12px;
+                background-color: var(--color-primary);
+                border: none;
+                color: var(--bg-base);
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 0.95rem;
+                text-transform: uppercase;
+                transition: all 0.2s ease;
+            }
+
+            button:hover:not(:disabled) {
+                background-color: #00b8d4;
+                transform: translateY(-1px);
+            }
+
+            button:disabled {
+                background-color: var(--border-color);
+                color: #525b7a;
+                cursor: not-allowed;
+            }
+
+            .control-group {
+                margin: 20px 0;
+            }
+
+            .control-group label {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.85rem;
+                margin-bottom: 8px;
+                font-weight: bold;
+            }
+
+            .val-display {
+                font-family: monospace;
+                opacity: 0.8;
+            }
+
+            input[type="range"] {
+                -webkit-appearance: none;
+                width: 100%;
+                height: 6px;
+                border-radius: 4px;
+                background: var(--bg-base);
+                outline: none;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            .slider-vocal {
+                accent-color: var(--color-vocal);
+            }
+
+            .slider-vocal::-webkit-slider-thumb {
+                background: var(--color-vocal);
+            }
+
+            .slider-music {
+                accent-color: var(--color-music);
+            }
+
+            .slider-music::-webkit-slider-thumb {
+                background: var(--color-music);
+            }
+
+            .slider-eq {
+                accent-color: var(--color-primary);
+            }
+
+            .slider-eq::-webkit-slider-thumb {
+                background: var(--color-primary);
+            }
+
+            hr {
+                border: 0;
+                height: 1px;
+                background: var(--border-color);
+                margin: 25px 0;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div class="mixer-container">
+            <h1>Audio Player</h1>
+
+            <div class="tracks">
+                <!-- Song 1 -->
+                <div class="track" id="track1">
+                    <h2>Song 1</h2>
+
+                    <div class="file-upload-wrapper">
+                        <label>Upload Song</label>
+                        <input type="file" class="file-input" accept="audio/*">
+                    </div>
+
+                    <div class="audio-controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <button class="pause-btn" disabled>Pause</button>
+                    </div>
+
+                    <div class="control-group">
+                        <label style="color: var(--color-vocal);">
+                            <span>🎙️ Vocal Control</span>
+                            <span class="val-display" id="t1-vocal-val">100%</span>
+                        </label>
+                        <input type="range" class="vocal-vol slider-vocal" min="0" max="2" step="0.01" value="1">
+                    </div>
+
+                    <div class="control-group">
+                        <label style="color: var(--color-music);">
+                            <span>🎵 Song Control</span>
+                            <span class="val-display" id="t1-music-val">100%</span>
+                        </label>
+                        <input type="range" class="music-vol slider-music" min="0" max="2" step="0.01" value="1">
+                    </div>
+
+                    <hr>
+
+                    <div class="control-group">
+                        <label><span>Bass EQ</span><span class="val-display" id="t1-bass-val">0 dB</span></label>
+                        <input type="range" class="bass slider-eq" min="-12" max="12" step="1" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label><span>Mid Equalizer</span><span class="val-display" id="t1-mid-val">0 dB</span></label>
+                        <input type="range" class="mid slider-eq" min="-12" max="12" step="1" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label><span>Treble EQ</span><span class="val-display" id="t1-treble-val">0 dB</span></label>
+                        <input type="range" class="treble slider-eq" min="-12" max="12" step="1" value="0">
+                    </div>
+                </div>
+
+                <!-- Song 2 -->
+                <div class="track" id="track2">
+                    <h2>Song 2</h2>
+
+                    <div class="file-upload-wrapper">
+                        <label>Upload Song</label>
+                        <input type="file" class="file-input" accept="audio/*">
+                    </div>
+
+                    <div class="audio-controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <button class="pause-btn" disabled>Pause</button>
+                    </div>
+
+                    <div class="control-group">
+                        <label style="color: var(--color-vocal);">
+                            <span>🎙️ Vocal Control</span>
+                            <span class="val-display" id="t2-vocal-val">100%</span>
+                        </label>
+                        <input type="range" class="vocal-vol slider-vocal" min="0" max="2" step="0.01" value="1">
+                    </div>
+
+                    <div class="control-group">
+                        <label style="color: var(--color-music);">
+                            <span>🎵 Song Control</span>
+                            <span class="val-display" id="t2-music-val">100%</span>
+                        </label>
+                        <input type="range" class="music-vol slider-music" min="0" max="2" step="0.01" value="1">
+                    </div>
+
+                    <hr>
+
+                    <div class="control-group">
+                        <label><span>Bass EQ</span><span class="val-display" id="t2-bass-val">0 dB</span></label>
+                        <input type="range" class="bass slider-eq" min="-12" max="12" step="1" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label><span>Mid Equalizer</span><span class="val-display" id="t2-mid-val">0 dB</span></label>
+                        <input type="range" class="mid slider-eq" min="-12" max="12" step="1" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label><span>Treble EQ</span><span class="val-display" id="t2-treble-val">0 dB</span></label>
+                        <input type="range" class="treble slider-eq" min="-12" max="12" step="1" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            let audioCtx = null;
+
+            function initializeTrackPipeline(trackId) {
+                const container = document.getElementById(trackId);
+                const fileInput = container.querySelector('.file-input');
+                const playBtn = container.querySelector('.play-btn');
+                const pauseBtn = container.querySelector('.pause-btn');
+
+                const audioNode = new Audio();
+            }
