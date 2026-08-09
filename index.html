@@ -310,15 +310,96 @@
             </div>
         </div>
 
-        <script>
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            let audioCtx = null;
+       <script>
+    // Audio Context Setup (Web Audio API Engine)
+    let audioCtx = null;
+    let sourceA = null, sourceB = null;
+    let gainNodeA = null, gainNodeB = null;
+    let filterBass = null, filterMid = null, filterTreble = null;
 
-            function initializeTrackPipeline(trackId) {
-                const container = document.getElementById(trackId);
-                const fileInput = container.querySelector('.file-input');
-                const playBtn = container.querySelector('.play-btn');
-                const pauseBtn = container.querySelector('.pause-btn');
+    function initAudio() {
+        if (audioCtx) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-                const audioNode = new Audio();
-            }
+        // Build the 3-Band Equalizer nodes mathematically using Biquad Filters
+        filterBass = audioCtx.createBiquadFilter();
+        filterBass.type = 'lowshelf';
+        filterBass.frequency.value = 250; 
+
+        filterMid = audioCtx.createBiquadFilter();
+        filterMid.type = 'peaking';
+        filterMid.Q.value = 1.0;
+        filterMid.frequency.value = 1500; 
+
+        filterTreble = audioCtx.createBiquadFilter();
+        filterTreble.type = 'highshelf';
+        filterTreble.frequency.value = 4000; 
+
+        // Volume node channels for mixing
+        gainNodeA = audioCtx.createGain();
+        gainNodeB = audioCtx.createGain();
+
+        // Connect the layout chain: Volume Nodes -> EQ Stack -> Device Speakers
+        gainNodeA.connect(filterBass);
+        gainNodeB.connect(filterBass);
+        filterBass.connect(filterMid);
+        filterMid.connect(filterTreble);
+        filterTreble.connect(audioCtx.destination);
+    }
+
+    document.getElementById('playBtn').addEventListener('click', async () => {
+        initAudio();
+        if (audioCtx.state === 'suspended') {
+            await audioCtx.resume();
+        }
+
+        const fileA = document.getElementById('fileA').files[0];
+        const fileB = document.getElementById('fileB').files[0];
+
+        // FIXED: Check if at least one file is selected before doing anything
+        if (!fileA && !fileB) {
+            alert("Please select at least one song to play!");
+            return;
+        }
+
+        // FIXED: Process Song A only if a file is uploaded
+        if (fileA) {
+            if (sourceA) try { sourceA.stop(); } catch(e) {}
+            const audioA = new Audio(URL.createObjectURL(fileA));
+            sourceA = audioCtx.createMediaElementSource(audioA);
+            sourceA.connect(gainNodeA);
+            audioA.play().catch(e => console.log("Playback error A:", e));
+        }
+
+        // FIXED: Process Song B only if a file is uploaded
+        if (fileB) {
+            if (sourceB) try { sourceB.stop(); } catch(e) {}
+            const audioB = new Audio(URL.createObjectURL(fileB));
+            sourceB = audioCtx.createMediaElementSource(audioB);
+            sourceB.connect(gainNodeB);
+            audioB.play().catch(e => console.log("Playback error B:", e));
+        }
+        
+        updateMixerSettings();
+    });
+
+    function updateMixerSettings() {
+        if (!audioCtx) return;
+
+        // Read UI inputs
+        let volA = document.getElementById('muteA').checked ? 0 : document.getElementById('vocalVolA').value;
+        let volB = document.getElementById('muteB').checked ? 0 : document.getElementById('vocalVolB').value;
+
+        // Apply real-time volumes and structural EQ calculations
+        if (gainNodeA) gainNodeA.gain.value = volA;
+        if (gainNodeB) gainNodeB.gain.value = volB;
+        if (filterBass) filterBass.gain.value = document.getElementById('eqBass').value;
+        if (filterMid) filterMid.gain.value = document.getElementById('eqMid').value;
+        if (filterTreble) filterTreble.gain.value = document.getElementById('eqTreble').value;
+    }
+
+    // Dynamic UI interaction updates layout values instantly
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', updateMixerSettings);
+    });
+</script>
